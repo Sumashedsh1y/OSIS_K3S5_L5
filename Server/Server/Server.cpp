@@ -63,34 +63,49 @@ void handle_connections() {
         std::string line;
 
         printf("Start reading files\n");
-        std::ifstream BD_Coords("BD_Coords.txt");
+        std::ifstream BD_Coords;
+        BD_Coords.open("BD_Coords.txt");
+        if (!(BD_Coords.is_open())) {
+            printf("Error open BD_Coords\n");
+            exit(0);
+        }
         char _id1[100], _id2[100], _x[100], _y[100], _z[100], _time[100], _temp[100], _dx1[100], _dx2[100];
         BD_Coords >> _id1 >> _id2 >> _x >> _y >> _z;
-        std::cout << _id1 << _id2 << _x << _y << _z << std::endl;
-        Sleep(1000);
+        std::cout << _id1 << " " <<  _id2 << " " << _x << " " << _y << " " << _z << std::endl;
         while (!BD_Coords.eof()) {
             info tmp;
             BD_Coords >> tmp.id >> tmp.x >> tmp.y >> tmp.z;
-            std::cout << tmp.id << tmp.x << tmp.y << tmp.z << std::endl;
             infos.push_back(tmp);
-            Sleep(1000);
         }
+        printf("BD_Coords comlete\n");
+        BD_Coords.close();
 
-        std::ifstream BD("BD.txt");
-        BD >> _id1 >> _id2 >> _temp >> _dx1 >> _dx2;
+        std::ifstream BD;
+        BD.open("BD.txt");
+        if (!(BD.is_open())) {
+            printf("Error open BD\n");
+            exit(0);
+        }
+        BD >> _time >> _id1 >> _id2 >> _temp >> _dx1 >> _dx2;
+        std::cout << _id1 << " " << _id2 << " " << _temp << " " << _dx1 << " " << _dx2 << std::endl;
         while (!BD.eof()) {
-            info tmp;
-            BD >> tmp.time >> tmp.id >> tmp.temp >> tmp.dx;
+            info tmp2;
+            BD >> tmp2.time >> tmp2.id >> tmp2.temp >> tmp2.dx;
+            std::cout << tmp2.time << " " << tmp2.id << " " << tmp2.temp << " " << tmp2.dx << std::endl;
             for (int i = 0; i < infos.size(); i++) {
-                if (infos[i].id == tmp.id) {
-                    tmp.x = infos[i].x;
-                    tmp.y = infos[i].y;
-                    tmp.z = infos[i].z;
-                    printf("%i", i);
-                    allinfo.push_back(tmp);
+                if (infos[i].id == tmp2.id) {
+                    tmp2.x = infos[i].x;
+                    tmp2.y = infos[i].y;
+                    tmp2.z = infos[i].z;
+                    allinfo.push_back(tmp2);
+                    printf("ID: %i\n", tmp2.id);
+                    break;
                 }
             }
         }
+        printf("BD comlete\n");
+        BD.close();
+
         printf("End reading files\n");
 
         printf("%s %s\t%s\t%s %s\t%s\n", _id1, _id2, _time, _dx1, _dx2, _temp);
@@ -103,7 +118,7 @@ void handle_connections() {
             }
         }
         sock.send(boost::asio::buffer(&z, sizeof(z)));
-        for (int i = 0; i < 10824; i++) {
+        for (int i = 0; i < allinfo.size(); i++) {
             if (allinfo[i].x == X && allinfo[i].z == Z && allinfo[i].y == Y) {
                 sock.send(boost::asio::buffer(&allinfo[i].time, sizeof(allinfo[i].time)));
                 sock.send(boost::asio::buffer(&allinfo[i].dx, sizeof(allinfo[i].dx)));
@@ -111,8 +126,6 @@ void handle_connections() {
             }
         }
 
-        BD_Coords.close();
-        BD.close();
         sock.close();
     }
 }

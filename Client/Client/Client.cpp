@@ -23,7 +23,6 @@ void sync_echo() {
     int b = sock.receive(boost::asio::buffer(bufreg,sizeof(bufreg)));
     print(bufreg, b);
     std::cin >> aunt;
-    Sleep(1000);
     sock.send(boost::asio::buffer(aunt,sizeof(aunt)));
 
     bool RESULT;
@@ -33,7 +32,6 @@ void sync_echo() {
         exit(0);
     }
     printf("Correct password\n");
-    Sleep(1000);
 
     double X, Y, Z;
     printf("Enter X: ");
@@ -48,13 +46,13 @@ void sync_echo() {
 
     int z;
     sock.receive(boost::asio::buffer(&z, sizeof(z)));
-    printf("Time\tPoint ID\tTemperature\tDisplacement X\n");
+    printf("Time\tTemperature\tDisplacement X\n");
     for (int i = 0; i < z; i++) {
         double time, dx, temp;
         sock.receive(boost::asio::buffer(&time, sizeof(time)));
         sock.receive(boost::asio::buffer(&dx, sizeof(dx)));
         sock.receive(boost::asio::buffer(&temp, sizeof(temp)));
-        printf("%i\t%3lf\t%2le\t%2lf\n", time, dx, temp);
+        printf("%3lf\t%2le\t%2lf\n", time, dx, temp);
     }
     sock.close();
 }
